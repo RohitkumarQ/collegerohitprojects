@@ -20,10 +20,19 @@ router.post(
       .not()
       .isEmpty(),
     check("phone_number", "Please enter a valid phone_number").isLength({
-      min: 6,
+      min: 8,
       max: 12
     }).isInt(),
-    check("email", "Please enter a valid email").isEmail(),
+    check("email", "Please enter a valid email").isEmail()
+      .custom((value, { req, loc, path }) => {
+        return User.findOne({
+            email: req.body.email,
+        }).then(user => {
+          if (user) {
+            return Promise.reject('email already in use');
+          }
+        });
+      }),
     check("password", "Please enter a valid password").isLength({
       min: 6
     })
@@ -32,7 +41,7 @@ router.post(
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({
-        status: 400,
+        status: 200,
         errors: errors.array()
       });
     }
@@ -110,6 +119,7 @@ router.post(
 
     if (!errors.isEmpty()) {
       return res.status(400).json({
+        status: 400,
         errors: errors.array()
       });
     }
@@ -193,7 +203,7 @@ router.post("/delete", auth, async (req, res) => {
   }
 });
 
-router.put("/update",auth,(req, res) => {
+router.put("/update", auth, (req, res) => {
   User.findByIdAndUpdate(req.user.id, {
     username: req.body.username,
     phone_number: req.body.phone_number,
@@ -204,26 +214,26 @@ router.put("/update",auth,(req, res) => {
     .then(user => {
       if (!user) {
         return res.status(404).send({
-          message: "user not found" 
+          message: "user not found"
         });
       }
       res.send({
-        status:200,
-        msg:"user updated successfuly",
-        data:{
-          user  
+        status: 200,
+        msg: "user updated successfuly",
+        data: {
+          user
         }
-        
+
       });
     }).catch(err => {
       if (err) {
         return res.status(404).send({
-          sattus:404,
+          sattus: 404,
           message: "user not found "
         });
       }
       return res.status(500).send({
-        status:500,
+        status: 500,
         message: "Error updating user "
       });
     });
