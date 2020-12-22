@@ -7,11 +7,13 @@ const UserSchema = mongoose.Schema({
   },
   phone_number: {
     type: String,
-    required: true
+    required: true,
+    unique:true
   },
   email: {
     type: String,
-    required: true
+    required: true,
+    unique:true
   },
   country_code:{
     type:String,
