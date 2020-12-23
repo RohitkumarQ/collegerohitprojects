@@ -15,91 +15,124 @@ const User = require("../models/User");
 
 router.post(
   "/signup",
-  check("username", "Please Enter a Valid Username")
-    .not()
-    .isEmpty(),
-  check("phone_number", "Please enter a valid phone_number").isLength({
-    min: 8,
-    max: 12
-  }).isInt(),
-  check("email", "Please enter a valid email").isEmail()
-    .custom((value, { req, loc, res }) => {
-      return User.findOne({
-        email: req.body.email,
-      }).then(user => {
-        if (user) {
-          return Promise.reject('email already in use');
-        }
-      });
-    }),
-  check("password", "Please enter a valid password").isLength({
-    min: 6
-  }),
   async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(200).json({
-        status: 200,
-        msg: errors
-      });
-    }
     const { username, phone_number, email, country_code, password } = req.body;
     try {
       let user = await User.findOne({
         phone_number
       });
       if (user) {
-        return res.status(400).json({
-          status: 400,
+        return res.status(200).json({
+          status: 200,
           msg: "phonenumber Already Exists"
         });
       }
-
-      user = new User({
-        username,
-        phone_number,
-        email,
-        country_code,
-        password
-      });
-
-      const salt = await bcrypt.genSalt(10);
-      user.password = await bcrypt.hash(password, salt);
-
-      await user.save();
-
-      const payload = {
-        user: {
-          id: user.id
-        }
-      };
-
-      jwt.sign(
-        payload,
-        "randomString",
-        {
-          expiresIn: 10000
-        },
-        (err, token) => {
-          if (err) throw err;
-          res.status(200).json({
-            status: 200,
-            msg: "registered succsessfuly",
-            data: {
-              token
-            }
-
-          });
-        }
-      );
+      if (username == "") {
+        return res.status(200).json({
+          status: 200,
+          msg: "username is empty"
+        });
+      }
+      if (phone_number == "") {
+        return res.status(200).json({
+          status: 200,
+          msg: "phone number is empty"
+        });
+      }
+      if (phone_number.length < 8) {
+        return res.status(200).json({
+          status: 200,
+          msg: "enter atlest 8 digit number"
+        });
+      }
+      if (phone_number.length > 12) {
+        return res.status(200).json({
+          status: 200,
+          msg: "enter atmost 12 digit number"
+        });
+      }
+      var reg = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
+      if (reg.test(email) == false) {
+        return res.status(200).json({
+          status: 200,
+          msg: "enter valid email"
+        });
+      }
+      if (email == "") {
+        return res.status(200).json({
+          status: 200,
+          msg: "enter is empty"
+        });
+      }
+      if (email !== "") {
+        User.findOne({
+          email: req.body.email,
+        }).then(user => {
+          if (user) {
+            return res.status(200).json({
+              status: 200,
+              msg: 'email is already in use'
+            })
+          }
+        })
+      }
+      if (country_code == "") {
+        return res.status(200).json({
+          status: 200,
+          msg: "country_code is empty"
+        });
+      }
+      if (password.length < 6) {
+        return res.status(200).json({
+          status: 200,
+          msg: "enter ialtest 6 digit password"
+        });
+      }
     } catch (err) {
       console.log(err.message);
       res.status(500).send("Error in Saving");
     }
+
+
+    user = new User({
+      username,
+      phone_number,
+      email,
+      country_code,
+      password
+    });
+
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(password, salt);
+
+    await user.save();
+
+    const payload = {
+      user: {
+        id: user.id
+      }
+    };
+
+    jwt.sign(
+      payload,
+      "randomString",
+      {
+        expiresIn: 10000
+      },
+      (err, token) => {
+        if (err) throw err;
+        res.status(200).json({
+          status: 200,
+          msg: "registered succsessfuly",
+          data: {
+            token
+          }
+
+        });
+      }
+    );
   }
 );
-
-
 router.post(
   "/login",
   async (req, res) => {
