@@ -22,45 +22,45 @@ router.post(
         phone_number
       });
       if (user) {
-        return res.status(200).json({
-          status: 200,
+        return res.status(400).json({
+          status: 400,
           msg: "phonenumber Already Exists"
         });
       }
       if (username == "") {
-        return res.status(200).json({
-          status: 200,
+        return res.status(400).json({
+          status: 400,
           msg: "username is empty"
         });
       }
       if (phone_number == "") {
-        return res.status(200).json({
-          status: 200,
+        return res.status(400).json({
+          status: 400,
           msg: "phone number is empty"
         });
       }
       if (phone_number.length < 8) {
-        return res.status(200).json({
-          status: 200,
+        return res.status(400).json({
+          status: 400,
           msg: "enter atlest 8 digit number"
         });
       }
       if (phone_number.length > 12) {
-        return res.status(200).json({
-          status: 200,
+        return res.status(400).json({
+          status: 400,
           msg: "enter atmost 12 digit number"
         });
       }
       var reg = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
       if (reg.test(email) == false) {
-        return res.status(200).json({
-          status: 200,
+        return res.status(400).json({
+          status: 400,
           msg: "enter valid email"
         });
       }
       if (email == "") {
-        return res.status(200).json({
-          status: 200,
+        return res.status(400).json({
+          status: 400,
           msg: "enter is empty"
         });
       }
@@ -69,8 +69,8 @@ router.post(
           email: req.body.email,
         }).then(user => {
           if (user) {
-            return res.status(200).json({
-              status: 200,
+            return res.status(400).json({
+              status: 400,
               msg: 'email is already in use'
             })
           }
@@ -83,8 +83,8 @@ router.post(
         });
       }
       if (password.length < 6) {
-        return res.status(200).json({
-          status: 200,
+        return res.status(400).json({
+          status: 400,
           msg: "enter ialtest 6 digit password"
         });
       }
