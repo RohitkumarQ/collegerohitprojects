@@ -77,8 +77,8 @@ router.post(
         })
       }
       if (country_code == "") {
-        return res.status(200).json({
-          status: 200,
+        return res.status(400).json({
+          status: 400,
           msg: "country_code is empty"
         });
       }
